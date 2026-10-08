@@ -12,7 +12,7 @@
 | System design | Done for the core | S3 zones, Lambda per source, region roll-ups, limitations log |
 | Implementation | In progress | Natality ETL, region roll-ups, NOAA parser, thresholds, monthly heat counts |
 | Testing | Ongoing | 46 unit tests, including a real NOAA data fixture |
-| Deployment | Not started | SAM template, IAM, budget alert, log retention |
+| Deployment | Not started | SAM template, IAM, budget alert, log retention. Code is in Git with CI running the tests |
 
 ---
 
@@ -105,6 +105,13 @@
 - A **real-data fixture** (actual NOAA rows) catches format surprises that synthetic data misses.
 - Edge cases worth testing: leap years, padded days, URL-encoded keys, pagination, missing thresholds, out-of-state rows, unknown labels.
 
+### Version control and a public portfolio repo
+- **Commit history is part of the portfolio:** small commits with messages that explain *why*, each one leaving the tests passing.
+- **CI (continuous integration):** a GitHub Actions workflow runs the unit tests on every push, on Python 3.10 and 3.12 (3.12 matches the Lambda runtime).
+- **Keep out of a public repo:** data files (`data/` is in `.gitignore`), raw CDC WONDER exports, secrets (`.env`, AWS keys), and personal email (use GitHub's private noreply address).
+- **License:** MIT, so others may reuse the code with attribution.
+- **Lock files:** git briefly creates files like `.git/index.lock` to stop two git commands from changing the repo at once, then deletes them. If a command crashes and leaves one behind, the next command fails with "File exists" until the stale lock is removed.
+
 ---
 
 ## 3. Q&A from our sessions
@@ -147,6 +154,12 @@ Athena runs SQL on S3 files, billed per query. RDS is a managed traditional data
 
 **Q: Are they all RDBMSs?**
 Only RDS. Redshift is relational but analytics-tuned, with keys that aren't enforced. Athena is a query engine with no storage of its own: the pipeline is the only data-quality safeguard.
+
+**Q: Is it worthwhile to commit to my public repo as we progress?**
+Yes. A history of small, tested, well-described commits shows how you work. Run tests in CI, keep data and secrets out, be transparent about AI assistance, and be ready to explain every line.
+
+**Q: What are temporary lock files?**
+Short-lived files git creates (such as `.git/index.lock`) so that only one git command changes the repo at a time. Git deletes them when it finishes; a leftover lock from a crashed command blocks the next one until it's removed.
 
 ---
 
