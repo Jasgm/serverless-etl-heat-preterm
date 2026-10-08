@@ -110,6 +110,8 @@
 - **CI (continuous integration):** a GitHub Actions workflow runs the unit tests on every push, on Python 3.10 and 3.12 (3.12 matches the Lambda runtime).
 - **Keep out of a public repo:** data files (`data/` is in `.gitignore`), raw CDC WONDER exports, secrets (`.env`, AWS keys), and personal email (use GitHub's private noreply address).
 - **License:** MIT, so others may reuse the code with attribution.
+- **GitHub Flow (branch per feature):** `main` always works; each piece of work gets a short-lived branch (`feature/...`, `infra/...`, `docs/...`) merged into `main` through a pull request after CI passes; the branch is deleted after merging. Branch per *feature*, not per development phase, because testing happens on every branch.
+- **Stacked branches:** a branch built on another unmerged branch (here `feature/heat-etl` builds on `feature/natality-etl` because it uses the shared region lookup). Merge them in order, with merge commits rather than squash merges.
 - **Lock files:** git briefly creates files like `.git/index.lock` to stop two git commands from changing the repo at once, then deletes them. If a command crashes and leaves one behind, the next command fails with "File exists" until the stale lock is removed.
 
 ---
@@ -157,6 +159,9 @@ Only RDS. Redshift is relational but analytics-tuned, with keys that aren't enfo
 
 **Q: Is it worthwhile to commit to my public repo as we progress?**
 Yes. A history of small, tested, well-described commits shows how you work. Run tests in CI, keep data and secrets out, be transparent about AI assistance, and be ready to explain every line.
+
+**Q: Should I create a branch for each step?**
+Yes, per feature rather than per development phase. The existing work was split into `feature/natality-etl` (with CI), `feature/heat-etl` (stacked on natality) and `docs/project-docs`, each merged into `main` by pull request.
 
 **Q: What are temporary lock files?**
 Short-lived files git creates (such as `.git/index.lock`) so that only one git command changes the repo at a time. Git deletes them when it finishes; a leftover lock from a crashed command blocks the next one until it's removed.
